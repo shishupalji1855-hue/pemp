@@ -1,0 +1,121 @@
+
+:root {
+    --gold: #D4AF37;
+    --silver: #C0C0C0;
+    --copper: #B87333;
+    --copper-dark: #8B4513;
+    --copper-light: #CD7F32;
+    --charcoal: #1a202c;
+    --navy: #0f172a;
+}
+
+body {
+    background-color: var(--navy);
+    /* Metallic Brushed Copper Effect */
+    background-image: 
+        linear-gradient(135deg, rgba(139, 69, 19, 0.1) 0%, rgba(139, 69, 19, 0) 50%, rgba(139, 69, 19, 0.1) 100%),
+        linear-gradient(to right, var(--navy), var(--charcoal));
+    background-attachment: fixed;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Metallic Brushed Texture Overlay */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(184, 115, 51, 0.03) 2px,
+        rgba(184, 115, 51, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: -1;
+}
+
+.font-montserrat {
+    font-family: 'Montserrat', sans-serif;
+}
+
+.text-gold-500 {
+    color: var(--gold);
+}
+
+.border-gold-500 {
+    border-color: var(--gold);
+}
+
+.bg-gold-500 {
+    background-color: var(--gold);
+    background-image: linear-gradient(to bottom, var(--gold), #b89b3e);
+}
+
+/* 3D Metallic Buttons */
+button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+button#generate-qr, button#export-png {
+    background: linear-gradient(145deg, var(--gold), #b89b3e);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+button#generate-qr:hover, button#export-png:hover {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+    transform: translateY(-2px);
+}
+
+button::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transform: rotate(45deg);
+    transition: all 0.5s ease;
+}
+
+button:hover::after {
+    left: 100%;
+    top: 100%;
+}
+
+/* Custom Toggle Switch Styles */
+input:checked ~ .dot {
+    transform: translateX(100%);
+    background-color: var(--gold);
+}
+
+input:checked ~ .block {
+    background-color: #4a5568;
+}
+
+/* Canvas Preview Border */
+#qr-preview {
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+}
+
+/* Loading Spinner Customization */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.animate-spin {
+    animation: spin 1s linear infinite;
+}

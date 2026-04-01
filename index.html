@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro QR Designer v2.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto p-4 font-montserrat">
+        <h1 class="text-4xl font-bold text-center text-gold-500 mb-8 tracking-wider">Pro QR Designer v2.0</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Left Column: Controls & Inputs -->
+            <div class="bg-gray-800 p-6 rounded-lg border border-gold-500 shadow-2xl">
+                <h2 class="text-2xl font-bold mb-4 text-gold-500">Controls & Inputs</h2>
+                
+                <!-- Smart QR Gen -->
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold mb-2">Smart QR Gen</h3>
+                    <input type="text" id="qr-link" placeholder="Enter YouTube/Shorts/Web link" class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-gold-500 transition-colors">
+                    <button id="generate-qr" class="w-full mt-2 bg-gold-500 text-gray-900 font-bold py-2 px-4 rounded hover:bg-gold-600 transition-all duration-300 transform active:scale-95 shadow-md">Generate QR</button>
+                </div>
+
+                <!-- Universal QR Converter/Styler -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Universal QR Converter/Styler</h3>
+                    <div class="mb-4">
+                        <label for="qr-upload" class="block mb-2">Upload QR Image (PNG/JPG/SVG/WebP)</label>
+                        <input type="file" id="qr-upload" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gold-50 file:text-gold-700 hover:file:bg-gold-100">
+                    </div>
+                    <div class="mb-4">
+                        <label for="transparency-toggle" class="flex items-center cursor-pointer">
+                            <span class="mr-3">Remove White Background</span>
+                            <div class="relative">
+                                <input type="checkbox" id="transparency-toggle" class="sr-only">
+                                <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
+                                <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                            </div>
+                        </label>
+                    </div>
+                    <div>
+                        <label for="color-palette" class="block mb-2">Designer Palette</label>
+                        <select id="color-palette" class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-gold-500">
+                            <option value="#D4AF37">Metallic Gold</option>
+                            <option value="#C0C0C0">Silver</option>
+                            <option value="#B87333">Copper</option>
+                            <option value="#FFFFFF">Pure White</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: 4K Live Preview -->
+            <div class="bg-gray-800 p-6 rounded-lg border border-gold-500 flex flex-col items-center justify-center relative">
+                <h2 class="text-2xl font-bold mb-4 text-gold-500 font-montserrat">4K Live Preview</h2>
+                <div id="loading-spinner" class="hidden absolute inset-0 bg-gray-900 bg-opacity-75 flex flex-col items-center justify-center z-10 rounded-lg">
+                    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gold-500"></div>
+                    <p class="mt-4 text-gold-500 font-bold">Rendering 4K Canvas...</p>
+                </div>
+                <div id="qr-preview" class="w-full h-full flex items-center justify-center" style="max-width: 400px; max-height: 400px;">
+                    <canvas id="qr-canvas" width="4000" height="4000" style="width: 100%; height: 100%;"></canvas>
+                </div>
+                <button id="export-png" class="mt-4 bg-gold-500 text-gray-900 font-bold py-2 px-4 rounded hover:bg-gold-600 transition-all duration-300 transform active:scale-95 shadow-lg">Export as PNG</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
