@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const qrUploadInput = document.getElementById('qr-upload');
     const transparencyToggle = document.getElementById('transparency-toggle');
     const colorPalette = document.getElementById('color-palette');
+    const customColorPicker = document.getElementById('custom-color-picker');
     const qrCanvas = document.getElementById('qr-canvas');
     const exportPngBtn = document.getElementById('export-png');
     const qrPreview = document.getElementById('qr-preview');
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = qrCanvas.getContext('2d', { willReadFrequently: true });
     let qrcode = null;
     let originalImageData = null;
+    let currentColor = colorPalette.value;
 
     const showLoading = () => loadingSpinner.classList.remove('hidden');
     const hideLoading = () => loadingSpinner.classList.add('hidden');
@@ -20,6 +22,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearCanvas = () => {
         ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
         originalImageData = null;
+    };
+
+    const cleanYouTubeUrl = (url) => {
+        try {
+            const urlObj = new URL(url);
+            let videoId = '';
+            
+            if (urlObj.hostname === 'youtu.be') {
+                videoId = urlObj.pathname.slice(1);
+            } else if (urlObj.hostname.includes('youtube.com')) {
+                if (urlObj.pathname.includes('/shorts/')) {
+                    videoId = urlObj.pathname.split('/shorts/')[1].split('?')[0];
+                } else {
+                    videoId = urlObj.searchParams.get('v');
+                }
+            }
+            
+            if (videoId) {
+                return `https://youtu.be/${videoId}`;
+            }
+            return url;
+        } catch (e) {
+            return url;
+        }
     };
 
     const updatePreview = () => {
@@ -36,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const drawInstructionText = (color = '#000000') => {
         ctx.save();
         ctx.fillStyle = color;
-        // Use Montserrat from Google Fonts
         ctx.font = 'bold 120px Montserrat, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -46,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const processQR = async (imgSource, isUpload = false) => {
         showLoading();
-        // Use requestAnimationFrame to let the UI update (show spinner)
         await new Promise(resolve => requestAnimationFrame(resolve));
 
         clearCanvas();
@@ -54,14 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.drawImage(imgSource, 0, 0, 4000, 4000);
         } else {
             ctx.drawImage(imgSource, 0, 0, 4000, 3750);
-            drawInstructionText(colorPalette.value);
+            drawInstructionText(currentColor);
         }
 
         originalImageData = ctx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
-        
-        // Apply current filters
         applyFilters();
-        
         updatePreview();
         hideLoading();
     };
@@ -69,14 +90,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const applyFilters = () => {
         if (!originalImageData) return;
 
-        const newColor = colorPalette.value;
         const hexToRgb = (hex) => {
             const r = parseInt(hex.slice(1, 3), 16);
             const g = parseInt(hex.slice(3, 5), 16);
             const b = parseInt(hex.slice(5, 7), 16);
             return { r, g, b };
         };
-        const targetRgb = hexToRgb(newColor);
+        const targetRgb = hexToRgb(currentColor);
         
         const imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), 4000, 4000);
         const data = imageData.data;
@@ -87,8 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const b = data[i + 2];
             const alpha = data[i + 3];
 
-            // 1. Transparency Engine (Alpha Masking)
-            // If pixel is white or very light, make it transparent
             if (transparencyToggle.checked) {
                 const brightness = (r + g + b) / 3;
                 if (brightness > 220) {
@@ -97,8 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 2. Color Re-mapping (Black to Designer Palette)
-            // If pixel is dark (part of QR or Text), change its color
             const isDark = (r < 150 && g < 150 && b < 150);
             if (isDark && alpha > 0) {
                 data[i] = targetRgb.r;
@@ -111,8 +127,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     generateQrBtn.addEventListener('click', () => {
-        const link = qrLinkInput.value.trim();
+        let link = qrLinkInput.value.trim();
         if (!link) return;
+
+        // Offline URL Cleaning for YouTube
+        link = cleanYouTubeUrl(link);
+        qrLinkInput.value = link; // Show cleaned link in UI
 
         const qrCodeContainer = document.createElement('div');
         qrcode = new QRCode(qrCodeContainer, {
@@ -121,10 +141,9 @@ document.addEventListener('DOMContentLoaded', () => {
             height: 4000,
             colorDark: "#000000",
             colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
+            correctLevel: QRCode.CorrectLevel.M // Density Optimization
         });
 
-        // Wait for QRCode.js to render the image
         const checkInterval = setInterval(() => {
             const qrImg = qrCodeContainer.querySelector('img');
             if (qrImg && qrImg.complete) {
@@ -158,19 +177,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     colorPalette.addEventListener('change', () => {
-        if (!originalImageData) return;
-        showLoading();
-        setTimeout(() => {
+        if (colorPalette.value === 'custom') {
+            customColorPicker.click();
+        } else {
+            currentColor = colorPalette.value;
+            if (originalImageData) {
+                showLoading();
+                setTimeout(() => {
+                    applyFilters();
+                    updatePreview();
+                    hideLoading();
+                }, 50);
+            }
+        }
+    });
+
+    customColorPicker.addEventListener('input', (e) => {
+        currentColor = e.target.value;
+        if (originalImageData) {
             applyFilters();
             updatePreview();
-            hideLoading();
-        }, 50);
+        }
+    });
+
+    customColorPicker.addEventListener('change', (e) => {
+        currentColor = e.target.value;
+        if (originalImageData) {
+            showLoading();
+            setTimeout(() => {
+                applyFilters();
+                updatePreview();
+                hideLoading();
+            }, 50);
+        }
     });
 
     exportPngBtn.addEventListener('click', () => {
         if (!originalImageData) return;
         const link = document.createElement('a');
-        link.download = `ProQR_${colorPalette.options[colorPalette.selectedIndex].text.replace(' ', '_')}.png`;
+        const colorName = colorPalette.value === 'custom' ? 'Custom' : colorPalette.options[colorPalette.selectedIndex].text.replace(' ', '_');
+        link.download = `ProQR_${colorName}.png`;
         link.href = qrCanvas.toDataURL('image/png');
         link.click();
     });
