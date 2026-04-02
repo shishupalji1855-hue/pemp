@@ -105,11 +105,30 @@ input:checked ~ .block {
     background-color: #4a5568;
 }
 
-/* Canvas Preview Border */
+/* Hidden 4K Canvas */
+#qr-canvas {
+    display: none;
+}
+
+/* Mobile-Optimized Preview Container */
 #qr-preview {
+    width: 100%;
+    max-width: 400px; /* Limit size on desktop */
+    aspect-ratio: 1 / 1; /* Enforce square shape */
+    margin: auto;
     background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
     border: 1px solid rgba(212, 175, 55, 0.2);
     box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem; /* Add some padding around the image */
+}
+
+#qr-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 /* Loading Spinner Customization */
